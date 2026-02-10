@@ -11,6 +11,13 @@ async function basicInit(page: Page) {
       password: "a",
       roles: [{ role: Role.Diner }],
     },
+    "f@jwt.com": {
+      id: "4",
+      name: "Frankie",
+      email: "f@jwt.com",
+      password: "franchisee",
+      roles: [{ role: Role.Franchisee }],
+    },
   };
 
   // Authorize login for the given user
@@ -90,6 +97,26 @@ async function basicInit(page: Page) {
     await route.fulfill({ json: orderRes });
   });
 
+  // Create store
+  await page.route(/\/api\/franchise\/\d+\/store$/, async (route) => {
+    if (route.request().method() === "POST") {
+      const storeReq = route.request().postDataJSON();
+      const storeRes = { ...storeReq, id: 999, totalRevenue: 0 };
+      await route.fulfill({ status: 200, json: storeRes });
+    } else {
+      await route.continue();
+    }
+  });
+
+  // Close store
+  await page.route(/\/api\/franchise\/\d+\/store\/\d+$/, async (route) => {
+    if (route.request().method() === "DELETE") {
+      await route.fulfill({ status: 200, json: { message: "store deleted" } });
+    } else {
+      await route.continue();
+    }
+  });
+
   await page.goto("/");
 }
 
@@ -147,20 +174,14 @@ test("diner dashboard login", async ({ page }) => {
   await page.getByRole("textbox", { name: "Email address" }).fill("f@jwt.com");
   await page.getByRole("textbox", { name: "Password" }).fill("franchisee");
   await page.getByRole("button", { name: "Login" }).click();
-  await page
-    .getByRole("row", { name: "Olive Point 0 ₿ Close" })
-    .getByRole("button")
-    .click();
-  await page.getByRole("button", { name: "Close" }).click();
+  await page.goto("/franchise-dashboard");
   await page.getByRole("button", { name: "Create store" }).click();
   await page.getByRole("textbox", { name: "store name" }).fill("Olive Point");
   await page.getByRole("button", { name: "Create" }).click();
-  await page.getByRole("link", { name: "home" }).click();
-  await page.getByRole("button", { name: "Order now" }).click();
-  await page.getByRole("combobox").selectOption("38");
-  await page.getByRole("link", { name: "Image Description Pepperoni" }).click();
-  await page.getByRole("button", { name: "Checkout" }).click();
-  await page.getByRole("button", { name: "Pay now" }).click();
-  await page.getByRole("button", { name: "Verify" }).click();
+  await page
+    .getByRole("row", { name: "Olive Point" })
+    .getByRole("button")
+    .click();
   await page.getByRole("button", { name: "Close" }).click();
+  await page.getByRole("link", { name: "home" }).click();
 });
