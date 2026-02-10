@@ -136,3 +136,31 @@ test("purchase with login", async ({ page }) => {
   // Check balance
   await expect(page.getByText("0.008")).toBeVisible();
 });
+
+test("diner dashboard login", async ({ page }) => {
+  await basicInit(page);
+  await page
+    .getByLabel("Global")
+    .getByRole("link", { name: "Franchise" })
+    .click();
+  await page.getByRole("link", { name: "login", exact: true }).click();
+  await page.getByRole("textbox", { name: "Email address" }).fill("f@jwt.com");
+  await page.getByRole("textbox", { name: "Password" }).fill("franchisee");
+  await page.getByRole("button", { name: "Login" }).click();
+  await page
+    .getByRole("row", { name: "Olive Point 0 ₿ Close" })
+    .getByRole("button")
+    .click();
+  await page.getByRole("button", { name: "Close" }).click();
+  await page.getByRole("button", { name: "Create store" }).click();
+  await page.getByRole("textbox", { name: "store name" }).fill("Olive Point");
+  await page.getByRole("button", { name: "Create" }).click();
+  await page.getByRole("link", { name: "home" }).click();
+  await page.getByRole("button", { name: "Order now" }).click();
+  await page.getByRole("combobox").selectOption("38");
+  await page.getByRole("link", { name: "Image Description Pepperoni" }).click();
+  await page.getByRole("button", { name: "Checkout" }).click();
+  await page.getByRole("button", { name: "Pay now" }).click();
+  await page.getByRole("button", { name: "Verify" }).click();
+  await page.getByRole("button", { name: "Close" }).click();
+});
