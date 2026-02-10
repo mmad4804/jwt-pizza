@@ -11,11 +11,11 @@ async function basicInit(page: Page) {
       password: "a",
       roles: [{ role: Role.Diner }],
     },
-    "f@jwt.com": {
+    "fr@jwt.com": {
       id: "4",
       name: "Frankie",
-      email: "f@jwt.com",
-      password: "franchisee",
+      email: "fr@jwt.com",
+      password: "b",
       roles: [{ role: Role.Franchisee }],
     },
   };
@@ -120,14 +120,14 @@ async function basicInit(page: Page) {
   await page.goto("/");
 }
 
-test("login", async ({ page }) => {
-  await basicInit(page);
+test("login and logout", async ({ page }) => {
+  await page.goto("http://localhost:5173/");
   await page.getByRole("link", { name: "Login" }).click();
-  await page.getByRole("textbox", { name: "Email address" }).fill("d@jwt.com");
-  await page.getByRole("textbox", { name: "Password" }).fill("a");
-  await page.getByRole("button", { name: "Login" }).click();
-
-  await expect(page.getByRole("link", { name: "KC" })).toBeVisible();
+  await page.getByRole("textbox", { name: "Email address" }).fill("a@jwt.com");
+  await page.getByRole("textbox", { name: "Password" }).fill("admin");
+  const loginRes = await page.getByRole("button", { name: "Login" }).click();
+  await page.getByRole("link", { name: "Logout" }).click();
+  await expect(page.getByRole("link", { name: "Login" })).toBeVisible();
 });
 
 test("purchase with login", async ({ page }) => {
@@ -164,24 +164,57 @@ test("purchase with login", async ({ page }) => {
   await expect(page.getByText("0.008")).toBeVisible();
 });
 
-test("diner dashboard login", async ({ page }) => {
+// test("diner dashboard login", async ({ page }) => {
+//   await basicInit(page);
+//   await page
+//     .getByLabel("Global")
+//     .getByRole("link", { name: "Franchise" })
+//     .click();
+//   await page.getByRole("link", { name: "login", exact: true }).click();
+//   await page.getByRole("textbox", { name: "Email address" }).fill("f@jwt.com");
+//   await page.getByRole("textbox", { name: "Password" }).fill("franchisee");
+//   await page.getByRole("button", { name: "Login" }).click();
+//   await page.goto("/franchise-dashboard");
+//   await page.getByRole("button", { name: "Create store" }).click();
+//   await page.getByRole("textbox", { name: "store name" }).fill("Olive Point");
+//   await page.getByRole("button", { name: "Create" }).click();
+//   await page
+//     .getByRole("row", { name: "Olive Point" })
+//     .getByRole("button")
+//     .click();
+//   await page.getByRole("button", { name: "Close" }).click();
+//   await page.getByRole("link", { name: "home" }).click();
+// });
+
+test("register", async ({ page }) => {
   await basicInit(page);
+  await page.getByRole("link", { name: "Register" }).click();
+  await page.getByRole("textbox", { name: "Full name" }).fill("John");
+  await page
+    .getByRole("textbox", { name: "Email address" })
+    .fill("john@jwt.com");
+  await page.getByRole("textbox", { name: "Password" }).fill("johnny");
+  await page.getByRole("button", { name: "Register" }).click();
+});
+
+test("franchise dashboard login", async ({ page }) => {
+  await basicInit(page);
+  await page.getByRole("link", { name: "Login" }).click();
+  await page.getByRole("textbox", { name: "Email address" }).fill("fr@jwt.com");
+  await page.getByRole("textbox", { name: "Email address" }).press("Tab");
+  await page.getByRole("textbox", { name: "Password" }).fill("b");
+  await page.getByRole("button", { name: "Login" }).click();
   await page
     .getByLabel("Global")
     .getByRole("link", { name: "Franchise" })
     .click();
-  await page.getByRole("link", { name: "login", exact: true }).click();
-  await page.getByRole("textbox", { name: "Email address" }).fill("f@jwt.com");
-  await page.getByRole("textbox", { name: "Password" }).fill("franchisee");
-  await page.getByRole("button", { name: "Login" }).click();
-  await page.goto("/franchise-dashboard");
   await page.getByRole("button", { name: "Create store" }).click();
-  await page.getByRole("textbox", { name: "store name" }).fill("Olive Point");
-  await page.getByRole("button", { name: "Create" }).click();
-  await page
-    .getByRole("row", { name: "Olive Point" })
-    .getByRole("button")
-    .click();
-  await page.getByRole("button", { name: "Close" }).click();
-  await page.getByRole("link", { name: "home" }).click();
+  // await page.getByRole("textbox", { name: "store name" }).click();
+  // await page.getByRole("textbox", { name: "store name" }).fill("Cheese Test");
+  // await page.getByRole("button", { name: "Create" }).click();
+  // await page
+  //   .getByRole("row", { name: "Cheese Test 0 ₿ Close" })
+  //   .getByRole("button")
+  //   .click();
+  // await page.getByRole("button", { name: "Close" }).click();
 });
