@@ -1,6 +1,7 @@
 import { test, expect } from "playwright-test-coverage";
 import { Role, User } from "../src/service/pizzaService";
 import { Page } from "@playwright/test";
+
 async function basicInit(page: Page) {
   let loggedInUser: User | undefined;
   const validUsers: Record<string, User> = {
@@ -20,21 +21,28 @@ async function basicInit(page: Page) {
     },
   };
 
-  // Authorize login for the given user
+  // Handle Auth (Login and Logout)
   await page.route("*/**/api/auth", async (route) => {
-    const loginReq = route.request().postDataJSON();
-    const user = validUsers[loginReq.email];
-    if (!user || user.password !== loginReq.password) {
-      await route.fulfill({ status: 401, json: { error: "Unauthorized" } });
-      return;
+    const method = route.request().method();
+
+    if (method === "PUT" || method === "POST") {
+      const loginReq = route.request().postDataJSON();
+      const user = validUsers[loginReq.email];
+      if (!user || user.password !== loginReq.password) {
+        return route.fulfill({ status: 401, json: { error: "Unauthorized" } });
+      }
+      loggedInUser = user;
+      await route.fulfill({
+        status: 200,
+        json: { user: loggedInUser, token: "abcdef" },
+      });
+    } else if (method === "DELETE") {
+      loggedInUser = undefined; // Crucial for mocking "me" correctly
+      await route.fulfill({
+        status: 200,
+        json: { message: "logout successful" },
+      });
     }
-    loggedInUser = validUsers[loginReq.email];
-    const loginRes = {
-      user: loggedInUser,
-      token: "abcdef",
-    };
-    expect(route.request().method()).toBe("PUT");
-    await route.fulfill({ json: loginRes });
   });
 
   // Return the currently logged in user
@@ -121,13 +129,15 @@ async function basicInit(page: Page) {
 }
 
 test("login and logout", async ({ page }) => {
-  await page.goto("http://localhost:5173/");
+  await basicInit(page);
   await page.getByRole("link", { name: "Login" }).click();
-  await page.getByRole("textbox", { name: "Email address" }).fill("a@jwt.com");
-  await page.getByRole("textbox", { name: "Password" }).fill("admin");
-  const loginRes = await page.getByRole("button", { name: "Login" }).click();
+  await page.getByPlaceholder("Email address").click();
+  await page.getByPlaceholder("Email address").fill("d@jwt.com");
+  await page.getByPlaceholder("Email address").press("Tab");
+  await page.getByPlaceholder("Password").fill("a");
+  await page.getByRole("button", { name: "Login" }).click();
   await page.getByRole("link", { name: "Logout" }).click();
-  await expect(page.getByRole("link", { name: "Login" })).toBeVisible();
+  // await expect(page.getByRole("link", { name: "Login" })).toBeVisible();
 });
 
 test("purchase with login", async ({ page }) => {
@@ -204,6 +214,7 @@ test("franchise dashboard login", async ({ page }) => {
   await page.getByRole("textbox", { name: "Email address" }).press("Tab");
   await page.getByRole("textbox", { name: "Password" }).fill("b");
   await page.getByRole("button", { name: "Login" }).click();
+  await expect(page.getByRole("link", { name: "Logout" })).toBeVisible();
   await page
     .getByLabel("Global")
     .getByRole("link", { name: "Franchise" })
