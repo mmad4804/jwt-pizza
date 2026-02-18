@@ -12,6 +12,8 @@ async function basicInit(page: Page) {
       admins: [{ id: 4, name: "Frankie", email: "fr@jwt.com" }],
       stores: [{ id: 4, name: "Lehi", totalRevenue: 0 }],
     },
+    { id: 3, name: "PizzaCorp", stores: [{ id: 7, name: "Spanish Fork" }] },
+    { id: 4, name: "topSpot", stores: [] },
   ];
 
   const validUsers: Record<string, User> = {
@@ -92,21 +94,7 @@ async function basicInit(page: Page) {
 
   // Standard franchises and stores
   await page.route(/\/api\/franchise(\?.*)?$/, async (route) => {
-    const franchiseRes = {
-      franchises: [
-        {
-          id: 2,
-          name: "LotaPizza",
-          stores: [
-            { id: 4, name: "Lehi" },
-            { id: 5, name: "Springville" },
-            { id: 6, name: "American Fork" },
-          ],
-        },
-        { id: 3, name: "PizzaCorp", stores: [{ id: 7, name: "Spanish Fork" }] },
-        { id: 4, name: "topSpot", stores: [] },
-      ],
-    };
+    const franchiseRes = { franchises: franchises };
     expect(route.request().method()).toBe("GET");
     await route.fulfill({ json: franchiseRes });
   });
@@ -163,6 +151,43 @@ async function basicInit(page: Page) {
 
       await route.fulfill({ status: 200, json: { message: "store deleted" } });
     } else {
+      await route.continue();
+    }
+  });
+
+  // Specific Franchise Creation
+  await page.route(/\/api\/franchise$/, async (route) => {
+    if (route.request().method() === "POST") {
+      const payload = route.request().postDataJSON();
+
+      // 1. Create the response object
+      // We mock the database behavior by assigning a random ID
+      // and filling in the 'admin' details that the server usually provides.
+      const newFranchise = {
+        id: Math.floor(Math.random() * 1000), // Mocked ID (like the 48 in your example)
+        name: payload.name,
+        stores: [],
+        admins: [
+          {
+            id: 3, // Mocked user ID
+            name: "pizza franchisee",
+            email: payload.admins[0]?.email || "f@jwt.com",
+          },
+        ],
+      };
+
+      // 2. IMPORTANT: Update your shared state!
+      // This makes the franchise "exist" for subsequent GET requests.
+      franchises.push(newFranchise);
+
+      // 3. Fulfill the request with the formatted response
+      await route.fulfill({
+        status: 201, // Created
+        contentType: "application/json",
+        json: newFranchise,
+      });
+    } else {
+      // If it's a GET, it should be handled by your other handler
       await route.continue();
     }
   });
