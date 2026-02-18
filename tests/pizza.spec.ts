@@ -85,11 +85,23 @@ async function basicInit(page: Page) {
 
   // Standard franchises and stores
   await page.route(/\/api\/franchise(\?.*)?$/, async (route) => {
-    if (route.request().method() === "GET") {
-      await route.fulfill({ status: 200, json: franchises });
-    } else {
-      await route.continue();
-    }
+    const franchiseRes = {
+      franchises: [
+        {
+          id: 2,
+          name: "LotaPizza",
+          stores: [
+            { id: 4, name: "Lehi" },
+            { id: 5, name: "Springville" },
+            { id: 6, name: "American Fork" },
+          ],
+        },
+        { id: 3, name: "PizzaCorp", stores: [{ id: 7, name: "Spanish Fork" }] },
+        { id: 4, name: "topSpot", stores: [] },
+      ],
+    };
+    expect(route.request().method()).toBe("GET");
+    await route.fulfill({ json: franchiseRes });
   });
 
   // Specific Franchise Detail (The missing link!)
