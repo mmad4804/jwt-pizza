@@ -37,9 +37,12 @@ export default function AdminDashboard(props: Props) {
 
   React.useEffect(() => {
     (async () => {
-      setUsers(await pizzaService.listUsers(users.length, 10, "*"));
+      const filter = filterUserRef.current?.value
+        ? `*${filterUserRef.current.value}*`
+        : "*";
+      setUsers(await pizzaService.listUsers(userPage, 10, filter));
     })();
-  }, [props.user]);
+  }, [props.user, userPage]);
 
   function createFranchise() {
     navigate("/admin-dashboard/create-franchise");
@@ -68,12 +71,9 @@ export default function AdminDashboard(props: Props) {
   }
 
   async function filterUsers() {
+    setUserPage(0);
     setUsers(
-      await pizzaService.listUsers(
-        0,
-        10,
-        `*${filterFranchiseRef.current?.value}*`,
-      ),
+      await pizzaService.listUsers(0, 10, `*${filterUserRef.current?.value}*`),
     );
   }
 
@@ -119,7 +119,7 @@ export default function AdminDashboard(props: Props) {
                       {u.email}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {u.roles!.map((r) => r.role).join(", ")}
+                      {(u.roles || []).map((r) => r.role).join(", ")}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                       <button
