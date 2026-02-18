@@ -144,7 +144,6 @@ async function basicInit(page: Page) {
       const urlParts = route.request().url().split("/");
       const storeId = parseInt(urlParts[urlParts.length - 1]);
 
-      // UPDATE STATE: Remove the store
       franchises[0].stores = franchises[0].stores.filter(
         (s) => s.id !== storeId,
       );
@@ -160,34 +159,27 @@ async function basicInit(page: Page) {
     if (route.request().method() === "POST") {
       const payload = route.request().postDataJSON();
 
-      // 1. Create the response object
-      // We mock the database behavior by assigning a random ID
-      // and filling in the 'admin' details that the server usually provides.
       const newFranchise = {
         id: Math.floor(Math.random() * 1000), // Mocked ID (like the 48 in your example)
         name: payload.name,
         stores: [],
         admins: [
           {
-            id: 3, // Mocked user ID
+            id: 3,
             name: "pizza franchisee",
             email: payload.admins[0]?.email || "f@jwt.com",
           },
         ],
       };
 
-      // 2. IMPORTANT: Update your shared state!
-      // This makes the franchise "exist" for subsequent GET requests.
       franchises.push(newFranchise);
 
-      // 3. Fulfill the request with the formatted response
       await route.fulfill({
-        status: 201, // Created
+        status: 201,
         contentType: "application/json",
         json: newFranchise,
       });
     } else {
-      // If it's a GET, it should be handled by your other handler
       await route.continue();
     }
   });
@@ -204,7 +196,7 @@ test("login and logout", async ({ page }) => {
   await page.getByPlaceholder("Password").fill("a");
   await page.getByRole("button", { name: "Login" }).click();
   await page.getByRole("link", { name: "Logout" }).click();
-  // await expect(page.getByRole("link", { name: "Login" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Login" })).toBeVisible();
 });
 
 test("purchase with login", async ({ page }) => {
@@ -262,19 +254,27 @@ test("franchise dashboard login, create a store, and delete store", async ({
   await page.getByRole("textbox", { name: "Password" }).fill("b");
   await page.getByRole("button", { name: "Login" }).click();
   await expect(page.getByRole("link", { name: "Logout" })).toBeVisible();
+
   await page
     .getByLabel("Global")
     .getByRole("link", { name: "Franchise" })
     .click();
+  await expect(page.locator("h2")).toContainText("LotaPizza");
   await page.getByRole("button", { name: "Create store" }).click();
-  await page.getByRole("textbox", { name: "store name" }).click();
   await page.getByRole("textbox", { name: "store name" }).fill("Cheese Test");
   await page.getByRole("button", { name: "Create" }).click();
+
+  const newStoreRow = page.getByRole("row", { name: /Cheese Test/ });
+  await expect(newStoreRow).toBeVisible();
+
   await page
     .getByRole("row", { name: /Cheese Test/ })
     .getByRole("button")
     .click();
   await page.getByRole("button", { name: "Close" }).click();
+  await expect(
+    page.getByRole("row", { name: /Cheese Test/ }),
+  ).not.toBeVisible();
 });
 
 test("login and view history and about pages", async ({ page }) => {
