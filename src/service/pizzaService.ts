@@ -119,7 +119,7 @@ interface PizzaService {
   closeStore(franchise: Franchise, store: Store): Promise<null>;
   docs(docType: string): Promise<Endpoints>;
   updateUser(user: User): Promise<User>;
-  listUsers(): Promise<User[]>;
+  listUsers(page: number, limit: number, filter: string): Promise<User[]>;
 }
 
 export {
