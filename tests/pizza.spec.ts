@@ -29,6 +29,13 @@ async function basicInit(page: Page) {
       password: "b",
       roles: [{ objectId: "2", role: Role.Franchisee }],
     },
+    "ad@jwt.com": {
+      id: "5",
+      name: "Admin",
+      email: "ad@jwt.com",
+      password: "admin",
+      roles: [{ role: Role.Admin }],
+    },
   };
 
   // Handle Auth (Login and Logout)
@@ -104,7 +111,6 @@ async function basicInit(page: Page) {
     await route.fulfill({ json: franchiseRes });
   });
 
-  // Specific Franchise Detail (The missing link!)
   await page.route(/\/api\/franchise\/\d+$/, async (route) => {
     const method = route.request().method();
 
@@ -221,7 +227,9 @@ test("register", async ({ page }) => {
   await page.getByRole("button", { name: "Register" }).click();
 });
 
-test("franchise dashboard login", async ({ page }) => {
+test("franchise dashboard login, create a store, and delete store", async ({
+  page,
+}) => {
   await basicInit(page);
   await page.getByRole("link", { name: "Login" }).click();
   await page.getByRole("textbox", { name: "Email address" }).fill("fr@jwt.com");
@@ -242,4 +250,18 @@ test("franchise dashboard login", async ({ page }) => {
     .getByRole("button")
     .click();
   await page.getByRole("button", { name: "Close" }).click();
+});
+
+test("login and view history and about pages", async ({ page }) => {
+  await basicInit(page);
+  await page.getByRole("link", { name: "Login" }).click();
+  await page.getByRole("textbox", { name: "Email address" }).fill("ad@jwt.com");
+  await page.getByRole("textbox", { name: "Password" }).fill("admin");
+  await page.getByRole("button", { name: "Login" }).click();
+  await page.getByLabel("Global").getByRole("link", { name: "Admin" }).click();
+  await page.getByRole("link", { name: "About" }).click();
+  await page.getByRole("link", { name: "home" }).click();
+  await page.getByLabel("Global").getByRole("link", { name: "Admin" }).click();
+  await page.getByRole("link", { name: "History" }).click();
+  await page.getByRole("link", { name: "Logout" }).click();
 });
