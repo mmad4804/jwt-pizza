@@ -97,20 +97,10 @@ async function basicInit(page: Page) {
     const method = route.request().method();
 
     if (method === "GET") {
-      // We return a single franchise object here, not an array
-      const singleFranchiseRes = [
-        {
-          id: 2,
-          name: "LotaPizza",
-          admins: [{ id: 4, name: "Frankie", email: "fr@jwt.com" }],
-          stores: [{ id: 4, name: "Lehi", totalRevenue: 0 }],
-        },
-      ];
-
       await route.fulfill({
         status: 200,
         contentType: "application/json",
-        json: singleFranchiseRes,
+        json: franchises,
       });
     } else {
       await route.continue();
@@ -236,7 +226,7 @@ test("franchise dashboard login", async ({ page }) => {
   await page.getByRole("textbox", { name: "store name" }).fill("Cheese Test");
   await page.getByRole("button", { name: "Create" }).click();
   await page
-    .getByRole("row", { name: "/Cheese Test/" })
+    .getByRole("row", { name: /Cheese Test/ })
     .getByRole("button")
     .click();
   await page.getByRole("button", { name: "Close" }).click();
