@@ -265,3 +265,27 @@ test("login and view history and about pages", async ({ page }) => {
   await page.getByRole("link", { name: "History" }).click();
   await page.getByRole("link", { name: "Logout" }).click();
 });
+
+test("admin login, create franchise, and delete franchise", async ({
+  page,
+}) => {
+  await basicInit(page);
+  await page.getByRole("link", { name: "Login" }).click();
+  await page.getByRole("textbox", { name: "Email address" }).fill("ad@jwt.com");
+  await page.getByRole("textbox", { name: "Password" }).fill("admin");
+  await page.getByRole("button", { name: "Login" }).click();
+  await page.getByLabel("Global").getByRole("link", { name: "Admin" }).click();
+  await page.getByRole("button", { name: "Add Franchise" }).click();
+  await page
+    .getByRole("textbox", { name: "franchise name" })
+    .fill("Test Franchise");
+  await page
+    .getByRole("textbox", { name: "franchisee admin email" })
+    .fill("ad@jwt.com");
+  await page.getByRole("button", { name: "Create" }).click();
+  await page
+    .getByRole("row", { name: /Test Franchise/ })
+    .getByRole("button")
+    .click();
+  await page.getByRole("button", { name: "Close" }).click();
+});
