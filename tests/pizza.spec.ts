@@ -154,6 +154,48 @@ async function basicInit(page: Page) {
     }
   });
 
+  // Get Order History
+  await page.route("*/**/api/order", async (route) => {
+    // We only intercept GET here so we don't interfere with POST (placing an order)
+    if (route.request().method() === "GET") {
+      const ordersRes = {
+        dinerId: 2,
+        orders: [
+          {
+            id: 19,
+            franchiseId: 1,
+            storeId: 1,
+            date: "2026-02-03T23:02:28.000Z",
+            items: [
+              { id: 22, menuId: 1, description: "Veggie", price: 0.0038 },
+              { id: 23, menuId: 2, description: "Pepperoni", price: 0.0042 },
+            ],
+          },
+          // ... add your other order objects here ...
+          {
+            id: 28,
+            franchiseId: 1,
+            storeId: 1,
+            date: "2026-02-03T23:17:30.000Z",
+            items: [
+              { id: 40, menuId: 1, description: "Veggie", price: 0.0038 },
+              { id: 41, menuId: 2, description: "Pepperoni", price: 0.0042 },
+            ],
+          },
+        ],
+        page: 1,
+      };
+
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        json: ordersRes,
+      });
+    } else {
+      await route.continue();
+    }
+  });
+
   // Specific Franchise Creation
   await page.route(/\/api\/franchise$/, async (route) => {
     if (route.request().method() === "POST") {
@@ -313,4 +355,13 @@ test("admin login, create franchise, and delete franchise", async ({
     .getByRole("button")
     .click();
   await page.getByRole("button", { name: "Close" }).click();
+});
+
+test("diner dashboard view", async ({ page }) => {
+  await basicInit(page);
+  await page.getByRole("link", { name: "Login" }).click();
+  await page.getByRole("textbox", { name: "Email address" }).fill("d@jwt.com");
+  await page.getByRole("textbox", { name: "Password" }).fill("a");
+  await page.getByRole("button", { name: "Login" }).click();
+  await page.getByRole("link", { name: "KC" }).click();
 });
