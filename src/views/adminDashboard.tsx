@@ -37,10 +37,8 @@ export default function AdminDashboard(props: Props) {
 
   React.useEffect(() => {
     (async () => {
-      const filter = filterUserRef.current?.value
-        ? `*${filterUserRef.current.value}*`
-        : "*";
-      setUsers(await pizzaService.listUsers(userPage, 10, filter));
+      const response = await pizzaService.listUsers(userPage, 10, "*");
+      setUsers(response.users);
     })();
   }, [props.user, userPage]);
 
@@ -72,14 +70,17 @@ export default function AdminDashboard(props: Props) {
 
   async function filterUsers() {
     setUserPage(0);
-    setUsers(
-      await pizzaService.listUsers(0, 10, `*${filterUserRef.current?.value}*`),
+    const response = await pizzaService.listUsers(
+      0,
+      10,
+      `*${filterUserRef.current?.value}*`,
     );
+    setUsers(response.users);
   }
 
   async function getUsers() {
-    const users = await pizzaService.listUsers(userPage, 10, "*");
-    setUsers(users);
+    const response = await pizzaService.listUsers(userPage, 10, "*");
+    setUsers(response.users);
   }
 
   async function deleteUser(user: User) {
@@ -91,7 +92,6 @@ export default function AdminDashboard(props: Props) {
   if (Role.isRole(props.user, Role.Admin)) {
     response = (
       <View title="Mama Ricci's kitchen">
-        // Insert table here with list of users
         <div className="text-start py-8 px-4 sm:px-6 lg:px-8">
           <h3 className="text-neutral-100 text-xl">Users</h3>
           <div className="bg-neutral-100 overflow-clip my-4 rounded-lg shadow">
