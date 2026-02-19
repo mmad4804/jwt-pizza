@@ -276,3 +276,23 @@ test("admin view users", async ({ page }) => {
   // (Assuming your mock returns different users for page 1)
   await expect(prevButton).toBeEnabled();
 });
+
+test("admin delete user", async ({ page }) => {
+  await basicInit(page);
+  await page.getByRole("link", { name: "Login" }).click();
+  await page.getByRole("textbox", { name: "Email address" }).fill(`ad@jwt.com`);
+  await page.getByRole("textbox", { name: "Password" }).fill("admin");
+  await page.getByRole("button", { name: "Login" }).click();
+  await page.getByRole("link", { name: "Admin" }).click();
+
+  const userTable = page.locator("table").first();
+  const rowToDelete = userTable.locator("tr", { hasText: "Frankie" });
+
+  const initialRowCount = await userTable.locator("tbody tr").count();
+  await rowToDelete.locator("button").click();
+
+  // Assertion: The text "Frankie" should no longer exist in the table
+  await expect(userTable).not.toContainText("Frankie");
+  const newRowCount = await userTable.locator("tbody tr").count();
+  expect(newRowCount).toBe(initialRowCount - 1);
+});
