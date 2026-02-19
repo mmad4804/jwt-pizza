@@ -145,6 +145,49 @@ async function basicInit(page: Page) {
     }
   });
 
+  // List users for admin dashboard
+  await page.route(/\/api\/user(\?.*)?$/, async (route) => {
+    if (route.request().method() === "GET") {
+      const url = new URL(route.request().url());
+
+      // Skip if this is actually the /api/user/me call
+      if (url.pathname.endsWith("/me")) {
+        return route.continue();
+      }
+
+      const pageParam = parseInt(url.searchParams.get("page") || "0", 10);
+      const limitParam = parseInt(url.searchParams.get("limit") || "10", 10);
+      const filterParam =
+        url.searchParams.get("filter") || url.searchParams.get("name") || "*";
+
+      // Convert "*" wildcard to empty string for matching, otherwise use the string
+      const searchString =
+        filterParam === "*" ? "" : filterParam.replace(/\*/g, "");
+
+      const allUsers = Object.values(validUsers);
+      const filteredUsers = allUsers.filter(
+        (u) =>
+          u.email!.toLowerCase().includes(searchString.toLowerCase()) ||
+          u.name!.toLowerCase().includes(searchString.toLowerCase()),
+      );
+
+      // Basic pagination logic
+      const start = pageParam * limitParam;
+      const paginatedUsers = filteredUsers.slice(start, start + limitParam);
+
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        json: {
+          users: paginatedUsers,
+          more: filteredUsers.length > start + limitParam,
+        },
+      });
+    } else {
+      await route.continue();
+    }
+  });
+
   await page.goto("/");
 }
 
@@ -187,4 +230,17 @@ test("updateUser", async ({ page }) => {
   await expect(page.getByRole("main")).toContainText("pizza dinerx");
   await expect(page.getByRole("main")).toContainText(`updated-pd@jwt.com`);
   await expect(page.getByRole("main")).toContainText("dinerx");
+});
+
+test("admin view users", async ({ page }) => {
+  await basicInit(page);
+  await page.getByRole("link", { name: "Login" }).click();
+  await page.getByRole("textbox", { name: "Email address" }).fill(`ad@jwt.com`);
+  await page.getByRole("textbox", { name: "Password" }).fill("admin");
+  await page.getByRole("button", { name: "Login" }).click();
+
+  await page.getByRole("link", { name: "Admin" }).click();
+  await expect(page.getByRole("heading", { name: "Users" })).toBeVisible();
+
+  await expect(page.getByRole("cell", { name: "pd@jwt.com" })).toBeVisible();
 });

@@ -78,14 +78,9 @@ export default function AdminDashboard(props: Props) {
     setUsers(response.users);
   }
 
-  async function getUsers() {
-    const response = await pizzaService.listUsers(userPage, 10, "*");
-    setUsers(response.users);
-  }
-
   async function deleteUser(user: User) {
     // await pizzaService.deleteUser(user.id);
-    await getUsers();
+    //await getUsers();
   }
 
   let response = <NotFound />;
