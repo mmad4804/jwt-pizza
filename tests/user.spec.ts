@@ -53,54 +53,97 @@ async function basicInit(page: Page) {
     }
   });
 
-  // Return the currently logged in user
-  await page.route("*/**/api/user/me", async (route) => {
-    expect(route.request().method()).toBe("GET");
-    await route.fulfill({ json: loggedInUser });
-  });
+  // Consolidated User Management (GET, POST, PUT, DELETE)
+  await page.route(/\/api\/user\b.*$/, async (route) => {
+    const method = route.request().method();
+    const url = route.request().url();
 
-  // Update user information
-  await page.route(/\/api\/user\/\d+$/, async (route) => {
-    if (route.request().method() === "PUT") {
+    // 1. Handle /api/user/me
+    if (url.includes("/api/user/me")) {
+      return route.fulfill({ json: loggedInUser || null });
+    }
+
+    // 2. Handle Registration (POST /api/user)
+    if (method === "POST") {
       const payload = route.request().postDataJSON();
-
-      // Keep track of the old email to clean up the validUsers record
-      const oldEmail = loggedInUser?.email;
-
-      // Update the state
-      const updatedUser = {
-        ...loggedInUser,
+      const newUser = {
         ...payload,
-        id: payload.id.toString(), // Ensure ID stays a string for your User type
+        id: Math.floor(Math.random() * 1000).toString(),
+        roles: [{ role: Role.Diner }],
       };
+      validUsers[payload.email] = newUser;
+      loggedInUser = newUser; // Auto-login on register
+      return route.fulfill({
+        status: 200,
+        json: { user: newUser, token: "abcdef" },
+      });
+    }
 
-      loggedInUser = updatedUser;
+    // 3. Handle /api/user/:id (PUT and DELETE)
+    const idMatch = url.match(/\/api\/user\/(\d+)$/);
+    if (idMatch) {
+      const userId = idMatch[1];
 
-      if (loggedInUser && loggedInUser.email) {
-        // 1. If the email changed, remove the old record
-        if (oldEmail && oldEmail !== loggedInUser.email) {
-          delete validUsers[oldEmail];
+      if (method === "DELETE") {
+        const userEntry = Object.entries(validUsers).find(
+          ([_, u]) => u.id === userId,
+        );
+        if (userEntry) {
+          delete validUsers[userEntry[0]];
+          if (loggedInUser?.id === userId) loggedInUser = undefined;
+          return route.fulfill({
+            status: 200,
+            json: { message: "User deleted" },
+          });
         }
-        // 2. Add/Update the record with the new email key
-        validUsers[loggedInUser.email] = loggedInUser;
+        return route.fulfill({ status: 404, json: { error: "Not found" } });
       }
 
-      await route.fulfill({
+      if (method === "PUT") {
+        const payload = route.request().postDataJSON();
+        // Update both the logged in state and the "database"
+        const updated = { ...loggedInUser, ...payload };
+        validUsers[payload.email || loggedInUser!.email] = updated;
+        loggedInUser = updated;
+        return route.fulfill({
+          status: 200,
+          json: { user: updated, token: "abcdef" },
+        });
+      }
+    }
+
+    // 4. Handle /api/user (LIST/SEARCH)
+    if (method === "GET") {
+      const urlObj = new URL(url);
+
+      // Try to get the search term from 'filter', 'name', or 'email' params
+      const rawFilter =
+        urlObj.searchParams.get("filter") ||
+        urlObj.searchParams.get("name") ||
+        "";
+
+      // Remove the asterisks and convert to lowercase
+      const search = rawFilter.replace(/\*/g, "").toLowerCase();
+
+      const allUsers = Object.values(validUsers);
+      const filtered = allUsers.filter(
+        (u) =>
+          u.name?.toLowerCase().includes(search) ||
+          u.email?.toLowerCase().includes(search),
+      );
+
+      // Return the filtered results
+      return route.fulfill({
         status: 200,
         contentType: "application/json",
         json: {
-          user: {
-            id: payload.id, // Return as number to match your API example
-            name: loggedInUser!.name,
-            email: loggedInUser!.email,
-            roles: loggedInUser!.roles,
-          },
-          token: "abcdef-new-token",
+          users: filtered.slice(0, 10),
+          more: filtered.length > 10,
         },
       });
-    } else {
-      await route.continue();
     }
+
+    await route.continue();
   });
 
   // Get Order History
@@ -139,49 +182,6 @@ async function basicInit(page: Page) {
         status: 200,
         contentType: "application/json",
         json: ordersRes,
-      });
-    } else {
-      await route.continue();
-    }
-  });
-
-  // List users for admin dashboard
-  await page.route(/\/api\/user(\?.*)?$/, async (route) => {
-    if (route.request().method() === "GET") {
-      const url = new URL(route.request().url());
-
-      // Skip if this is actually the /api/user/me call
-      if (url.pathname.endsWith("/me")) {
-        return route.continue();
-      }
-
-      const pageParam = parseInt(url.searchParams.get("page") || "0", 10);
-      const limitParam = parseInt(url.searchParams.get("limit") || "10", 10);
-      const filterParam =
-        url.searchParams.get("filter") || url.searchParams.get("name") || "*";
-
-      // Convert "*" wildcard to empty string for matching, otherwise use the string
-      const searchString =
-        filterParam === "*" ? "" : filterParam.replace(/\*/g, "");
-
-      const allUsers = Object.values(validUsers);
-      const filteredUsers = allUsers.filter(
-        (u) =>
-          u.email!.toLowerCase().includes(searchString.toLowerCase()) ||
-          u.name!.toLowerCase().includes(searchString.toLowerCase()),
-      );
-
-      // Basic pagination logic
-      const start = pageParam * limitParam;
-      const paginatedUsers = filteredUsers.slice(start, start + limitParam);
-
-      await route.fulfill({
-        status: 200,
-        contentType: "application/json",
-        json: {
-          users: paginatedUsers,
-          more: filteredUsers.length > start + limitParam,
-        },
       });
     } else {
       await route.continue();
