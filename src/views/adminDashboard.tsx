@@ -79,8 +79,7 @@ export default function AdminDashboard(props: Props) {
   }
 
   async function deleteUser(user: User) {
-    // await pizzaService.deleteUser(user.id);
-    //await getUsers();
+    await pizzaService.deleteUser(user.id!);
   }
 
   let response = <NotFound />;
