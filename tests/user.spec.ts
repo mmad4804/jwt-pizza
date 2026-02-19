@@ -253,11 +253,9 @@ test("admin view users", async ({ page }) => {
   const searchInput = userTable.locator('input[placeholder="Name"]');
   const searchButton = userTable.getByRole("button", { name: "Search" });
 
-  // Filter for "Frankie"
   await searchInput.fill("Frankie");
   await searchButton.click();
 
-  // Assert only 1 row remains and it contains the correct data
   const rows = userTable.locator("tbody tr");
   await expect(rows).toHaveCount(1);
   await expect(rows).toContainText("Frankie");
@@ -266,14 +264,8 @@ test("admin view users", async ({ page }) => {
   const nextButton = userTable.getByRole("button", { name: "Next" });
   const prevButton = userTable.getByRole("button", { name: "Prev" });
 
-  // Initial state check
   await expect(prevButton).toBeDisabled();
-
-  // Click Next
   await nextButton.click();
-
-  // Assert that the first user from the second page is visible
-  // (Assuming your mock returns different users for page 1)
   await expect(prevButton).toBeEnabled();
 });
 

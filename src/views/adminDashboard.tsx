@@ -79,7 +79,12 @@ export default function AdminDashboard(props: Props) {
   }
 
   async function deleteUser(user: User) {
-    await pizzaService.deleteUser(user.id!);
+    try {
+      await pizzaService.deleteUser(user.id!);
+      setUsers(users.filter((u) => u.id !== user.id));
+    } catch (error) {
+      console.error("Failed to delete user:", error);
+    }
   }
 
   let response = <NotFound />;
