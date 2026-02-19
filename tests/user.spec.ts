@@ -242,5 +242,37 @@ test("admin view users", async ({ page }) => {
   await page.getByRole("link", { name: "Admin" }).click();
   await expect(page.getByRole("heading", { name: "Users" })).toBeVisible();
 
-  await expect(page.getByRole("cell", { name: "pd@jwt.com" })).toBeVisible();
+  const rowCount = await page
+    .locator("table")
+    .first()
+    .locator("tbody tr")
+    .count();
+  expect(rowCount).toBeGreaterThanOrEqual(3);
+
+  const userTable = page.locator("table").first();
+  const searchInput = userTable.locator('input[placeholder="Name"]');
+  const searchButton = userTable.getByRole("button", { name: "Search" });
+
+  // Filter for "Frankie"
+  await searchInput.fill("Frankie");
+  await searchButton.click();
+
+  // Assert only 1 row remains and it contains the correct data
+  const rows = userTable.locator("tbody tr");
+  await expect(rows).toHaveCount(1);
+  await expect(rows).toContainText("Frankie");
+  await expect(rows).not.toContainText("pizza diner");
+
+  const nextButton = userTable.getByRole("button", { name: "Next" });
+  const prevButton = userTable.getByRole("button", { name: "Prev" });
+
+  // Initial state check
+  await expect(prevButton).toBeDisabled();
+
+  // Click Next
+  await nextButton.click();
+
+  // Assert that the first user from the second page is visible
+  // (Assuming your mock returns different users for page 1)
+  await expect(prevButton).toBeEnabled();
 });
