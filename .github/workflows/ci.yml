@@ -48,6 +48,10 @@ jobs:
           color=$(echo "$coverage < 80" | bc | awk '{if ($1) print "red"; else print "green"}')
           curl -s -X POST "https://pizza-factory.cs329.click/api/badge/${{ secrets.NET_ID }}/jwtpizzacoverage?label=Coverage&value=$coverage%25&color=$color" -H "authorization: bearer ${{ secrets.FACTORY_API_KEY }}"
 
+      - name: Annotate deployment in Grafana
+        run: |
+          curl -s -X POST https://madariaga.grafana.net/api/annotations -H "Authorization: Bearer ${{ secrets.GRAFANA_ACCESS_TOKEN }}" -H "Content-Type:application/json" -d '{"dashboardUID":"majhm2l", "panelId":2, "tags":["frontend","production"], "text":"Version '"$version"' deployed" }'
+
   deploy:
     needs: build
     permissions:
