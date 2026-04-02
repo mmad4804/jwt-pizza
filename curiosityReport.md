@@ -18,8 +18,19 @@ Below is a table comparing Terraform's capabilities with a few other leading inf
 | Pulumi         | - Greater flexibility with<br>coding guidelines<br>- Not limited to a specific<br>software language | - A larger community with<br>more documentation                                          |
 | CloudFormation | - Offers deep, native integration<br>with AWS services                                              | - Flexibility beyond AWS-<br>can integrate multiple <br>cloud services/providers         |
 
+## How It Works
+According to Terraform's website, "plugins called providers let Terraform interact with cloud platforms and other services via their application programming interfaces (APIs)" <sup>3</sup>. You can even write your own providers that integrate with Terraform! 
+
+## Tutorial
+To get a feel for how Terraform works, I followed one of the tutorials on their website (https://developer.hashicorp.com/terraform/tutorials/docker-get-started/infrastructure-as-code) for building a simple docker infrastructure using Terraform.
+
+One of the first steps was to install Terraform on my local machine, which I did using Chocolatey:
+` choco install terraform `
+<img width="1918" height="785" alt="image" src="https://github.com/user-attachments/assets/d419865b-f6df-4d01-bd2d-32477530b1b6" />
+
 
 
 ### References
-https://developer.hashicorp.com/terraform/intro
-https://www.varonis.com/blog/what-is-terraform
+1. https://developer.hashicorp.com/terraform/intro
+2. https://www.varonis.com/blog/what-is-terraform
+3. https://developer.hashicorp.com/terraform/tutorials/docker-get-started/infrastructure-as-code
