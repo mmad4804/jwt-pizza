@@ -18,17 +18,31 @@ Below is a table comparing Terraform's capabilities with a few other leading inf
 | Pulumi         | - Greater flexibility with<br>coding guidelines<br>- Not limited to a specific<br>software language | - A larger community with<br>more documentation                                          |
 | CloudFormation | - Offers deep, native integration<br>with AWS services                                              | - Flexibility beyond AWS-<br>can integrate multiple <br>cloud services/providers         |
 
-## How It Works
-According to Terraform's website, "plugins called providers let Terraform interact with cloud platforms and other services via their application programming interfaces (APIs)" <sup>3</sup>. You can even write your own providers that integrate with Terraform! 
-
 ## Tutorial
 To get a feel for how Terraform works, I followed one of the tutorials on their website (https://developer.hashicorp.com/terraform/tutorials/docker-get-started/infrastructure-as-code) for building a simple docker infrastructure using Terraform.
 
+### Installation
 One of the first steps was to install Terraform on my local machine, which I did using Chocolatey:
+
 ` choco install terraform `
-<img width="1918" height="785" alt="image" src="https://github.com/user-attachments/assets/d419865b-f6df-4d01-bd2d-32477530b1b6" />
 
+### Configuration File
+I then defined my infrastructure with a basic configuration file. We begin by selecting one or many _providers_ within the Terraform settings block. According to Terraform's website, providers are essentially plugins that "let Terraform interact with cloud platforms and other services via their application programming interfaces (APIs)" <sup>3</sup>. You can even write your own providers that integrate with Terraform! In this case, we chose docker as the provider of our infrastructure. Additional configuration for it can be made in the `provider` block.
 
+<img width="1582" height="959" alt="image" src="https://github.com/user-attachments/assets/de5a5e8b-68a2-4328-a895-750be678b2cd" />
+
+*Resources* are the other main building block for defining your infrastructure. Before each block, the resource type and name are listed. Within each block, I supplied the arguments for configuring the resources, such as instructing the docker container to use the docker image.
+
+Running `terraform init` in the terminal installs the necessary providers, and `terraform apply` creates an execution plan for review.
+
+<img width="1491" height="772" alt="image" src="https://github.com/user-attachments/assets/50b196fa-9fb5-4e24-b44c-2213087023e7" />
+
+After accepting the plan, Terraform went ahead and provisioned the resources, successfully creating the docker container! Navigating to `localhost:8000` on the browser verified that the setup was successful. 
+
+<img width="957" height="348" alt="image" src="https://github.com/user-attachments/assets/82e2912c-cff6-4639-9b1c-af128c90c792" />
+
+## Final Thoughts
+As I wrap up this dive into Terraform and its capabilities, it becomes hard to imagine why any developer wouldn't be using a tool like unto it! Infrastructure as code is a gamechanger for the DevOps world, enabling fast, consistent, and reliable provision of the resources behind the scenes making our projects work. As I move onto larger-scale, production-level projects, I will definitely be looking to integrate Terraform into my workflows.
 
 ### References
 1. https://developer.hashicorp.com/terraform/intro
