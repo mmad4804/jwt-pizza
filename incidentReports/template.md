@@ -12,100 +12,35 @@ The team began receiving alerts via Grafana's OnCall system at 11:30am for high,
 
 There were only two active users at the time, and only one of them was affected. The one user was not able to receive their pizzas as requested and had to try again at a later time.
 
-```md
-**EXAMPLE**:
-
-For {XXhrs XX minutes} between {XX:XX UTC and XX:XX UTC} on {MM/DD/YY}, {SUMMARY OF INCIDENT} our users experienced this incident.
-
-This incident affected {XX} customers (X% OF {SYSTEM OR SERVICE} USERS), who experienced {DESCRIPTION OF SYMPTOMS}.
-
-{XX NUMBER OF SUPPORT TICKETS AND XX NUMBER OF SOCIAL MEDIA POSTS} were submitted.
-```
-
 ## Timeline
-
-> [!NOTE]
-> Detail the incident timeline. We recommend using UTC to standardize for timezones.
-> Include any notable lead-up events, any starts of activity, the first known impact, and escalations. Note any decisions or changed made, and when the incident ended, along with any post-impact events of note.
-
-```md
-**EXAMPLE**:
 
 All times are UTC.
 
-- _11:48_ - K8S 1.9 upgrade of control plane is finished
-- _12:46_ - Upgrade to V1.9 completed, including cluster-auto scaler and the BuildEng scheduler instance
-- _14:20_ - Build Engineering reports a problem to the KITT Disturbed
-- _14:27_ - KITT Disturbed starts investigating failures of a specific EC2 instance (ip-203-153-8-204)
-- _14:42_ - KITT Disturbed cordons the node
-- _14:49_ - BuildEng reports the problem as affecting more than just one node. 86 instances of the problem show failures are more systemic
-- _15:00_ - KITT Disturbed suggests switching to the standard scheduler
-- _15:34_ - BuildEng reports 200 pods failed
-- _16:00_ - BuildEng kills all failed builds with OutOfCpu reports
-- _16:13_ - BuildEng reports the failures are consistently recurring with new builds and were not just transient.
-- _16:30_ - KITT recognize the failures as an incident and run it as an incident.
-- _16:36_ - KITT disable the Escalator autoscaler to prevent the autoscaler from removing compute to alleviate the problem.
-- _16:40_ - KITT confirms ASG is stable, cluster load is normal and customer impact resolved.
-```
+- _11:14_ - Grafana IRM sends first "Pizza creation latency" alert
+- _11:24_ - Grafana IRM sends followup "Pizza creation alert"
+- _11:58_ - User made the first factory service request that returned a 500 status code
+- _11:59_ - User made the second factory service request that failed to make a pizza
+- _12:03_ - Incidents team acknowledged the incident alerts
+- _12:06_ - Logs detailing the failure were identified
+- _12:07_ - Link was found to end the chaos testing
+- _12:08_ - Incident was officially resolved
 
 ## Response
 
-> [!NOTE]
-> Who responded to the incident? When did they respond, and what did they do? Note any delays or obstacles to responding.
-
-```md
-**EXAMPLE**:
-
-After receiving a page at {XX:XX UTC}, {ON-CALL ENGINEER} came online at {XX:XX UTC} in {SYSTEM WHERE INCIDENT INFO IS CAPTURED}.
-
-This engineer did not have a background in the {AFFECTED SYSTEM} so a second alert was sent at {XX:XX UTC} to {ESCALATIONS ON-CALL ENGINEER} into the who came into the room at {XX:XX UTC}.
-```
+After receiving mobile pushes and Grafana IRM alerts, Micaela Madariaga, the on-call engineer, came online at noon. There was a slight delay in being able to access the system after having attended a campus devotional. After she reviewed the logs, she was able to copy and paste the necessary link for resolving the chaos.
 
 ## Root cause
 
-> [!NOTE]
-> Note the final root cause of the incident, the thing identified that needs to change in order to prevent this class of incident from happening again.
-
-```md
-**EXAMPLE**:
-
-A bug in connection pool handling led to leaked connections under failure conditions, combined with lack of visibility into connection state.
-```
+The incident primarily occurred due to a failure interacting with the pizza factory (and an injected chaos monkey). To prevent this from happening in the future, we will be looking at adding improved handling of failed pizza requests or moving to a more reliable provider.
 
 ## Resolution
 
-> [!NOTE]
-> Describe how the service was restored and the incident was deemed over. Detail how the service was successfully restored and you knew how what steps you needed to take to recovery.
-> Depending on the scenario, consider these questions: How could you improve time to mitigation? How could you have cut that time by half?
-
-```md
-**EXAMPLE**:
-By Increasing the size of the BuildEng EC3 ASG to increase the number of nodes available to support the workload and reduce the likelihood of scheduling on oversubscribed nodes
-
-Disabled the Escalator autoscaler to prevent the cluster from aggressively scaling-down
-Reverting the Build Engineering scheduler to the previous version.
-```
+The response body of the failed requests included a new json field called "followLinkToEndChaos" with a url linked. A quick copy and paste of the link in a browser window returned a simple message saying that the issue had been resolved. A quick check on the pizza factory website confirmed that the chaos level was once again "calm". This quick turnaround for resolving the incident was enabled by a good review and understanding of the code. The engineer already had a good idea of how errors might have presented themselves.
 
 ## Prevention
 
-> [!NOTE]
-> Now that you know the root cause, can you look back and see any other incidents that could have the same root cause? If yes, note what mitigation was attempted in those incidents and ask why this incident occurred again.
-
-```md
-**EXAMPLE**:
-
-This same root cause resulted in incidents HOT-13432, HOT-14932 and HOT-19452.
-```
+Knowing the root cause, any failures communicating with the pizza factory could result in similar errors and incidents. While the main effect was seen in pizzas not being created properly, other issues could arise as well.
 
 ## Action items
 
-> [!NOTE]
-> Describe the corrective action ordered to prevent this class of incident in the future. Note who is responsible and when they have to complete the work and where that work is being tracked.
-
-```md
-**EXAMPLE**:
-
-1. Manual auto-scaling rate limit put in place temporarily to limit failures
-1. Unit test and re-introduction of job rate limiting
-1. Introduction of a secondary mechanism to collect distributed rate information across cluster to guide scaling effects
-```
+Moving forward, the team will be adding more alerts linked to failed http requests. They will also look into better error handling for when the pizza factory is down so that users can be aware and other workarounds can be made.
