@@ -1,39 +1,16 @@
-# Incident: YYYY-MM-DD HH-mm-ss
+# Incident: 2026-04-07 12-18-00
 
 ## Summary
 
-> [!NOTE]
-> Write a summary of the incident in a few sentences. Include what happened, why, the severity of the incident and how long the impact lasted.
-
-```md
-**EXAMPLE**:
-
-Between the hour of {time range of incident, e.g. 15:45 and 16:35} on {DATE}, {NUMBER} users encountered {EVENT SYMPTOMS}. The event was triggered by a {CHANGE} at {TIME OF CHANGE THAT CAUSED THE EVENT}. The {CHANGE} contained {DESCRIPTION OF OR REASON FOR THE CHANGE, such as a change in code to update a system}.
-
-A bug in this code caused {DESCRIPTION OF THE PROBLEM}. The event was detected by {MONITORING SYSTEM}. The team started working on the event by {RESOLUTION ACTIONS TAKEN}. This {SEVERITY LEVEL} incident affected {X%} of users.
-
-There was further impact as noted by {e.g. NUMBER OF SUPPORT TICKETS SUBMITTED, SOCIAL MEDIA MENTIONS, CALLS TO ACCOUNT MANAGERS} were raised in relation to this incident.
-```
+Between the hour of 11:55am and 12:00pm on April 7th, 2026, one user made two attempts to order a pizza that failed. The failure happened on the fetch call to the pizza factory, which returned a 500 error status code instead of the proper jwt pizzas. The event was detected and resolved by the incidents team within 15 minutes.
 
 ## Detection
 
-> [!NOTE]
-> When did the team detect the incident? How did they know it was happening? How could we improve time-to-detection? Consider: How would we have cut that time by half?
-
-```md
-**EXAMPLE**:
-
-This incident was detected when the {ALERT TYPE} was triggered and {TEAM/PERSON} were paged.
-
-Next, {SECONDARY PERSON} was paged, because {FIRST PERSON} didn't own the service writing to the disk, delaying the response by {XX MINUTES/HOURS}.
-
-{DESCRIBE THE IMPROVEMENT} will be set up by {TEAM OWNER OF THE IMPROVEMENT} so that {EXPECTED IMPROVEMENT}.
-```
+The team began receiving alerts via Grafana's OnCall system at 11:30am for high, sustained rates of pizza creation latency. They were able to look at the metrics dashboard about 20 minutes later and found logs recording the failed requests. The response time could've been improved if the whole team had truly been "on call" instead of waiting for the devotional to end. In addition, more alerts could've been configured for tracking failed http requests or when 500 error status codes were thrown.
 
 ## Impact
 
-> [!NOTE]
-> Describe how the incident impacted internal and external users during the incident. Include how many support cases were raised.
+There were only two active users at the time, and only one of them was affected. The one user was not able to receive their pizzas as requested and had to try again at a later time.
 
 ```md
 **EXAMPLE**:
