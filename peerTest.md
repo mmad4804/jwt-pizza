@@ -198,44 +198,46 @@ Cecily Black and Micaela Madariaga
 
 | Item           | Result |
 | -------------- | ------ |
-| Date           |        |
-| Target         |        |
-| Classification |        |
-| Severity       |        |
-| Description    |        |
-| Images         |        |
-| Corrections    |        |
+| Date           |   April 11, 2026     |
+| Target         |    https://pizza.jwt-pizza.click/    |
+| Classification | Security Misconfiguration       |
+| Severity       |    2    |
+| Description    | Attempted to use default credentials to sign in.       |
+| Images         | <img width="701" height="569" alt="image" src="https://github.com/user-attachments/assets/c5f01e5a-4eef-4bc2-8f33-3343e2ce985b" /><br/> This did not work with the admin account, but I was able to log in as the existing franchisee member. 
+       |
+| Corrections    |   Update passwords for the default accounts.     |
 
 #### Attack 2
 
 | Item           | Result |
 | -------------- | ------ |
-| Date           |        |
-| Target         |        |
-| Classification |        |
-| Severity       |        |
-| Description    |        |
-| Images         |        |
-| Corrections    |        |
+| Date           |  April 11, 2026      |
+| Target         |  https://pizza.jwt-pizza.click/      |
+| Classification |  Identification and Authentication Failures      |
+| Severity       |    3    |
+| Description    |   Attempted brute forcing the passwords for the admin account.     |
+| Images         | <img width="1898" height="924" alt="image" src="https://github.com/user-attachments/assets/e611eb48-12cf-4dbd-95c1-74633abb20e7" /><br/>Found that an empty password could be used to gain an admin session token.
+       |
+| Corrections    |   Hardening password checks in the backend logic.     |
 
 #### Attack 3
 
 | Item           | Result |
 | -------------- | ------ |
-| Date           |        |
-| Target         |        |
-| Classification |        |
-| Severity       |        |
-| Description    |        |
-| Images         |        |
-| Corrections    |        |
+| Date           |   April 11, 2026     |
+| Target         |   https://pizza.jwt-pizza.click/      |
+| Classification |   Insecure Design     |
+| Severity       |    3    |
+| Description    |  Used the order endpoint to manually change the pizza prices in the request body.     |
+| Images         | <img width="905" height="494" alt="Screenshot 2026-04-11 194344" src="https://github.com/user-attachments/assets/8a1f362d-5a33-4c31-ab9c-a138d85205f6" /><br/>Was able to order 30 free pizzas!
+| Corrections    |   Change format of request so users can't submit the price (should be verified on the backend).     |
 
 #### Attack 4
 
 | Item           | Result |
 | -------------- | ------ |
-| Date           |        |
-| Target         |        |
+| Date           |   April 11, 2026          |
+| Target         |  https://pizza.jwt-pizza.click/       |
 | Classification |        |
 | Severity       |        |
 | Description    |        |
@@ -246,8 +248,8 @@ Cecily Black and Micaela Madariaga
 
 | Item           | Result |
 | -------------- | ------ |
-| Date           |        |
-| Target         |        |
+| Date           |  April 11, 2026           |
+| Target         | https://pizza.jwt-pizza.click/        |
 | Classification |        |
 | Severity       |        |
 | Description    |        |
