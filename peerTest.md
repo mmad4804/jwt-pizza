@@ -77,7 +77,7 @@ Cecily Black and Micaela Madariaga
 | Classification | Broken Access Control                                                                                          |
 | Severity       | 0                                                                                                              |
 | Description    | Tried to use the updateUser endpoint with an authorized user's session token to change other user credentials. |
-| Images         | <br/> The bearer token was not that of an admin's, so it failed.                                               |
+| Images         | <img width="775" height="318" alt="Screenshot 2026-04-10 111847" src="https://github.com/user-attachments/assets/5ab26a2a-75db-4dae-95cb-05fd99b297f7" /><br/> The bearer token was not that of an admin's, so it failed.                                               |
 | Corrections    | None needed.                                                                                                   |
 
 #### Attack 2
@@ -89,7 +89,7 @@ Cecily Black and Micaela Madariaga
 | Classification | Injection                                                                                   |
 | Severity       | 3                                                                                           |
 | Description    | Used the updateUser endpoint with an authorized account to inject sql into the email field. |
-| Images         | <br/> The admins email and password were overwritten with the other user's credentials.     |
+| Images         | <img width="1734" height="242" alt="Screenshot 2026-04-10 122240" src="https://github.com/user-attachments/assets/0bc27273-dfa9-432b-9bd2-675555cc0df4" /><img width="1162" height="531" alt="Screenshot 2026-04-10 122221" src="https://github.com/user-attachments/assets/81c7dcbe-1679-4e55-ba5c-93114e0cb420" /><br/> The admins email and password were overwritten with the other user's credentials.     |
 | Corrections    | Harden the logic in updateUser so user input is sanitized.                                  |
 
 #### Attack 3
@@ -101,7 +101,7 @@ Cecily Black and Micaela Madariaga
 | Classification | Insecure Design                                             |
 | Severity       | 2                                                           |
 | Description    | Used the order endpoint to set my own price for the pizzas. |
-| Images         | <br/> Obtained as many free pizzas as I wanted!             |
+| Images         | <img width="1739" height="447" alt="Screenshot 2026-04-10 124357" src="https://github.com/user-attachments/assets/06ff629a-edf1-41a1-9d24-2d26433bb8fc" /><br/> Obtained as many free pizzas as I wanted!             |
 | Corrections    | Verify prices using the menu instead of trusting the user.  |
 
 #### Attack 4
@@ -113,7 +113,7 @@ Cecily Black and Micaela Madariaga
 | Classification | Identification and Authentication Failures                                      |
 | Severity       | 3                                                                               |
 | Description    | Brute-forced passwords for an admin account using Burp Suite.                   |
-| Images         | <br/> Found a bug that showed an empty password could return admin information. |
+| Images         | <img width="1917" height="1005" alt="Screenshot 2026-04-11 173656" src="https://github.com/user-attachments/assets/02ece4db-4345-4bee-b050-bc558d00a26a" /><br/> Found a bug that showed an empty password could return admin information. |
 | Corrections    | Harden the logic behind the password checks.                                    |
 
 #### Attack 5
@@ -125,7 +125,7 @@ Cecily Black and Micaela Madariaga
 | Classification | Broken Access Control                                                                              |
 | Severity       | 3                                                                                                  |
 | Description    | Tried to use the createFranchise endpoint with an authorized user's session token to self-promote. |
-| Images         | <br/> The bearer token was not that of an admin's, so it failed.                                   |
+| Images         | <img width="778" height="526" alt="Screenshot 2026-04-11 180345" src="https://github.com/user-attachments/assets/0400fbe3-96bb-4dbf-ace1-754686413b58" /><br/> The bearer token was not that of an admin's, so it failed.                                   |
 | Corrections    | None needed.                                                                                       |
 
 ## Peer Attack
