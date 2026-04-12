@@ -204,7 +204,6 @@ Cecily Black and Micaela Madariaga
 | Severity       |    2    |
 | Description    | Attempted to use default credentials to sign in.       |
 | Images         | <img width="701" height="569" alt="image" src="https://github.com/user-attachments/assets/c5f01e5a-4eef-4bc2-8f33-3343e2ce985b" /><br/> This did not work with the admin account, but I was able to log in as the existing franchisee member. 
-       |
 | Corrections    |   Update passwords for the default accounts.     |
 
 #### Attack 2
@@ -217,7 +216,6 @@ Cecily Black and Micaela Madariaga
 | Severity       |    3    |
 | Description    |   Attempted brute forcing the passwords for the admin account.     |
 | Images         | <img width="1898" height="924" alt="image" src="https://github.com/user-attachments/assets/e611eb48-12cf-4dbd-95c1-74633abb20e7" /><br/>Found that an empty password could be used to gain an admin session token.
-       |
 | Corrections    |   Hardening password checks in the backend logic.     |
 
 #### Attack 3
@@ -238,11 +236,11 @@ Cecily Black and Micaela Madariaga
 | -------------- | ------ |
 | Date           |   April 11, 2026          |
 | Target         |  https://pizza.jwt-pizza.click/       |
-| Classification |        |
-| Severity       |        |
-| Description    |        |
-| Images         |        |
-| Corrections    |        |
+| Classification |    Injection    |
+| Severity       |   3     |
+| Description    |   Used the updateUser endpoint with an authorized user to inject sql that changes admin credentials.     |
+| Images         | <img width="912" height="712" alt="image" src="https://github.com/user-attachments/assets/8db75912-2d30-40aa-852e-af986380819e" /><br/>Successfully logged in as admin with the changed credentials and was able to delete users/franchises.
+| Corrections    |  Make sure that user params are handled correctly in the backend.      |
 
 #### Attack 5
 
@@ -250,11 +248,11 @@ Cecily Black and Micaela Madariaga
 | -------------- | ------ |
 | Date           |  April 11, 2026           |
 | Target         | https://pizza.jwt-pizza.click/        |
-| Classification |        |
-| Severity       |        |
-| Description    |        |
-| Images         |        |
-| Corrections    |        |
+| Classification |  Broken Access Control      |
+| Severity       |   3     |
+| Description    |   Used the deleteFranchise endpoint with an authorized user's session token.     |
+| Images         | <img width="941" height="244" alt="Screenshot 2026-04-11 201050" src="https://github.com/user-attachments/assets/cb05f734-711c-4da8-a974-35e818ae4354" /><br/>Successfully deleted any franchise.
+| Corrections    |   Add an admin authorization check to this endpoint so that ordinary users can't delete anything.     |
 
 ## Combined summary of learnings
 
